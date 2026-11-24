@@ -1,0 +1,10 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# pnpm n'exécute les scripts d'installation que des paquets explicitement autorisés.
+allowBuilds:
+  sharp: false
+  unrs-resolver: false
+  # Télécharge le binaire de la Supabase CLI (scripts db:*).
+  supabase: true

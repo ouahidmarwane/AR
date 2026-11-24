@@ -1,0 +1,2 @@
+-- Données de développement local, rejouées par `pnpm db:reset` après les migrations.
+-- Ne jamais y mettre de données réelles ni de secrets.
