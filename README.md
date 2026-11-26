@@ -13,7 +13,7 @@ Stack : monorepo pnpm, Next.js (App Router, TypeScript strict, Tailwind CSS), My
 ## Prérequis
 
 - [Git](https://git-scm.com/)
-- [Node.js](https://nodejs.org/), version fixée dans [`.nvmrc`](.nvmrc) (`nvm use`)
+- [Node.js](https://nodejs.org/) **24 LTS**, version exacte fixée dans [`.nvmrc`](.nvmrc) (`nvm use` ou `fnm use`), la même qu'en production sur Hostinger
 - [pnpm](https://pnpm.io/) 12+ (`npm install -g pnpm`)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (MySQL local)
 
@@ -66,12 +66,14 @@ Babel Group sert à vérifier l'isolation : aucun compte Atlas ne doit voir ses 
 
 L'app Next.js est dans `apps/web`, mais elle dépend du workspace pnpm (`packages/config`, lockfile à la racine) : le build doit donc partir de la **racine du repo**.
 
-| Réglage Hostinger     | Valeur                                          |
-| --------------------- | ----------------------------------------------- |
-| Dossier racine        | racine du repo (l'app elle-même est `apps/web`) |
-| Version de Node.js    | celle de [`.nvmrc`](.nvmrc)                     |
-| Commande de build     | `pnpm install --frozen-lockfile && pnpm build`  |
-| Commande de démarrage | `pnpm start`                                    |
+| Réglage Hostinger     | Valeur                                           |
+| --------------------- | ------------------------------------------------ |
+| Dossier racine        | racine du repo (l'app elle-même est `apps/web`)  |
+| Version de Node.js    | **24** (dernière version proposée par Hostinger) |
+| Commande de build     | `pnpm install --frozen-lockfile && pnpm build`   |
+| Commande de démarrage | `pnpm start`                                     |
+
+**Node 24** : Hostinger ne propose pas de version au-delà de Node 24. Le repo vise donc Node 24 LTS partout : [`.nvmrc`](.nvmrc) (version exacte utilisée en local et par la CI), `engines.node` (`>=24`) dans `package.json`, et `@types/node` en 24 pour que TypeScript signale toute API Node plus récente. Ne pas utiliser d'API propre à Node 25 ou plus.
 
 > Si l'hébergeur impose `apps/web` comme dossier racine, il faudra rendre l'app autonome (sortie `standalone` de Next.js ou copie des configs partagées) : à traiter dans une PR dédiée.
 

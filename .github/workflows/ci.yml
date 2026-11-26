@@ -51,8 +51,12 @@ jobs:
 
       - uses: actions/setup-node@v5
         with:
+          # Même version que la production Hostinger (Node 24 LTS, voir .nvmrc).
           node-version-file: .nvmrc
           cache: pnpm
+
+      - name: Versions
+        run: node --version && pnpm --version
 
       - run: pnpm install --frozen-lockfile
 
