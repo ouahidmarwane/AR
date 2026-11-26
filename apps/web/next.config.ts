@@ -1,5 +1,20 @@
 import type { NextConfig } from "next";
 
+import { loadRootEnv } from "./scripts/lib/root-env.mjs";
+
+/**
+ * Variables du .env de la RACINE du repo (Hostinger y écrit ses variables au lieu de les passer
+ * dans process.env, et Next.js ne lit que apps/web/.env*). Chargées ici car next.config.ts est
+ * évalué par `next build` ET `next start`, avant le code serveur. Une variable déjà présente
+ * dans process.env (y compris issue de apps/web/.env*) n'est jamais écrasée.
+ */
+const rootEnv = loadRootEnv();
+if (rootEnv.added.length > 0) {
+  console.info(
+    `[env] ${rootEnv.added.length} variable(s) chargée(s) depuis ${rootEnv.file} : ${rootEnv.added.join(", ")}`,
+  );
+}
+
 /**
  * Build pour hébergement contraint (Hostinger mutualisé) : `pnpm build:hostinger`
  * (scripts/build-hostinger.mjs) pose NEXT_BUILD_LOW_RESOURCES=1 et lance `next build --webpack`.

@@ -1,9 +1,12 @@
 import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
 
-// Même fichier d'environnement que Next.js ; en production (Hostinger), les
-// variables viennent du panneau d'hébergement.
+import { loadRootEnv } from "./scripts/lib/root-env.mjs";
+
+// Même fichier d'environnement que Next.js (apps/web/.env.local), puis le .env de la racine
+// du repo (écrit par Hostinger), sans écraser les variables déjà définies.
 config({ path: ".env.local", quiet: true });
+loadRootEnv();
 
 const url = process.env.DATABASE_URL;
 if (!url) {

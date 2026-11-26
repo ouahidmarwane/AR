@@ -9,11 +9,17 @@ import mysql from "mysql2/promise";
 
 import * as schema from "../../src/lib/db/schema";
 
+import { loadRootEnv } from "./root-env.mjs";
+
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "mysql"]);
 
-/** Charge apps/web/.env.local (si présent) puis lit DATABASE_URL. */
+/**
+ * Charge apps/web/.env.local puis le .env de la racine du repo (écrit par Hostinger),
+ * sans écraser les variables déjà définies, puis lit DATABASE_URL.
+ */
 export function loadDatabaseUrl(): string {
   config({ path: ".env.local", quiet: true });
+  loadRootEnv();
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL manquante (voir .env.example).");
   return url;
