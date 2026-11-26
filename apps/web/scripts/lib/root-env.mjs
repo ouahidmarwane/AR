@@ -23,23 +23,46 @@ export const BUILD_TARGETS = ["hostinger"];
 export function parseEnv(content) {
   /** @type {Record<string, string>} */
   const result = {};
-  const lines = content.replace(/\r\n?/g, "\n").split("\n");
-  for (const line of lines) {
-    const match = line.match(/^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_.-]*)\s*=\s*(.*)?\s*$/);
-    if (!match) continue;
-    const key = match[1];
-    let value = (match[2] ?? "").trim();
-    const quote = value[0];
-    if ((quote === '"' || quote === "'" || quote === "`") && value.lastIndexOf(quote) > 0) {
-      value = value.slice(1, value.lastIndexOf(quote));
-      if (quote === '"') value = value.replace(/\\n/g, "\n").replace(/\\r/g, "\r");
-    } else {
-      // Valeur non entourée de guillemets : un " #" commence un commentaire.
-      value = value.replace(/\s+#.*$/, "").trim();
-    }
-    result[key] = value;
+  // Analyse par opérations sur les chaînes (pas d'expression régulière à backtracking).
+  for (const rawLine of content.split("\n")) {
+    let line = (rawLine.endsWith("\r") ? rawLine.slice(0, -1) : rawLine).trim();
+    if (!line || line.startsWith("#")) continue;
+    if (line.startsWith("export ")) line = line.slice("export ".length).trimStart();
+
+    const equals = line.indexOf("=");
+    if (equals <= 0) continue;
+    const key = line.slice(0, equals).trim();
+    if (!ENV_KEY.test(key)) continue;
+
+    result[key] = parseValue(line.slice(equals + 1).trim());
   }
   return result;
+}
+
+/** Nom de variable valide : lettre ou `_`, puis lettres, chiffres, `_`, `.` ou `-`. */
+const ENV_KEY = /^[A-Za-z_][\w.-]*$/;
+
+/**
+ * Valeur d'une ligne .env : entre guillemets (simples, doubles ou backquotes), ou brute
+ * avec un éventuel commentaire en fin de ligne (` #...`).
+ * @param {string} raw
+ * @returns {string}
+ */
+function parseValue(raw) {
+  const quote = raw[0];
+  const closing = raw.lastIndexOf(quote);
+  if ((quote === '"' || quote === "'" || quote === "`") && closing > 0) {
+    const inner = raw.slice(1, closing);
+    return quote === '"'
+      ? inner.replaceAll(String.raw`\n`, "\n").replaceAll(String.raw`\r`, "\r")
+      : inner;
+  }
+  // Valeur sans guillemets : un "#" précédé d'un espace commence un commentaire.
+  for (let i = 1; i < raw.length; i++) {
+    if (raw[i] === "#" && (raw[i - 1] === " " || raw[i - 1] === "\t"))
+      return raw.slice(0, i).trimEnd();
+  }
+  return raw;
 }
 
 /**
@@ -117,7 +140,7 @@ export function resolveBuildTarget({ env = process.env, cwd = process.cwd(), web
   const fromWeb = normalize(readEnvFile(webFile)?.BUILD_TARGET);
   if (fromWeb) return { target: fromWeb, source: "apps/web/.env", file: webFile };
 
-  const paths = [cwd, webDir, root ?? ""].map((p) => p.replace(/\\/g, "/"));
+  const paths = [cwd, webDir, root ?? ""].map((p) => p.replaceAll("\\", "/"));
   if (paths.some((p) => p.includes("/hbuilds/"))) {
     return { target: "hostinger", source: "détection Hostinger" };
   }
