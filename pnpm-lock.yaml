@@ -243,6 +243,9 @@ importers:
       '@tailwindcss/turbopack':
         specifier: 4.3.3
         version: 4.3.3
+      '@tailwindcss/webpack':
+        specifier: 4.3.3
+        version: 4.3.3
       '@types/node':
         specifier: ^24.19.4
         version: 24.19.4
@@ -1539,6 +1542,17 @@ packages:
 
   '@tailwindcss/turbopack@4.3.3':
     resolution: {integrity: sha512-FgL4wRgItNdXcDjcgYUSd59gNsWqNVK4GotjZimZMmt7OOIkRNqH2QEUcRXLdBDXvwTsi5rkYxDxzfrFUkmObQ==}
+
+  '@tailwindcss/webpack@4.3.3':
+    resolution: {integrity: sha512-e7A7ubt+D+MzXAlQcOaDaHMD5oYzxULVdZVjLzGVStIXebGfD4RcVHxBSRP7xE+G8sS3o691zyfIbhm/veOLjQ==}
+    peerDependencies:
+      '@rspack/core': ^1.0.0 || ^2.0.0
+      webpack: ^5.0.0
+    peerDependenciesMeta:
+      '@rspack/core':
+        optional: true
+      webpack:
+        optional: true
 
   '@tybys/wasm-util@0.10.5':
     resolution: {integrity: sha512-dOGOPxlaNV+G046mZzN+9C0dAcQZeSKcXiVaM0TYy/LM4ttTmgSBDxYfovcYI8Em3+eAbiAYpvWLOv8+ZVRJKA==}
@@ -4618,6 +4632,13 @@ snapshots:
       '@tailwindcss/oxide-win32-x64-msvc': 4.3.3
 
   '@tailwindcss/turbopack@4.3.3':
+    dependencies:
+      '@alloc/quick-lru': 5.3.0
+      '@tailwindcss/node': 4.3.3
+      '@tailwindcss/oxide': 4.3.3
+      tailwindcss: 4.3.3
+
+  '@tailwindcss/webpack@4.3.3':
     dependencies:
       '@alloc/quick-lru': 5.3.0
       '@tailwindcss/node': 4.3.3

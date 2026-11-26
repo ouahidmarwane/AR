@@ -67,3 +67,7 @@ jobs:
       - run: pnpm test
 
       - run: pnpm build
+
+      # Build de production Hostinger (webpack, parallélisme limité) : détecte tôt une régression.
+      - name: Build Hostinger (webpack)
+        run: pnpm build:hostinger
