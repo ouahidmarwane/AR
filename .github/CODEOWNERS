@@ -1,6 +1,5 @@
 # Propriétaires du code : relecteurs demandés automatiquement sur les PR.
 # La DERNIÈRE règle qui correspond à un fichier l'emporte.
-# TODO : remplacer @BINOME_GITHUB par le pseudo GitHub du binôme.
 
 # --- Plateforme / back-end : @ouahidmarwane ---
 *                                               @ouahidmarwane
@@ -24,15 +23,15 @@
 /apps/web/src/features/admin/                   @ouahidmarwane
 /apps/web/src/features/model-generation/        @ouahidmarwane
 
-# --- Front-end / produit : @BINOME_GITHUB ---
-/apps/web/src/components/                       @BINOME_GITHUB
-/apps/web/src/i18n/                             @BINOME_GITHUB
-/apps/web/src/messages/                         @BINOME_GITHUB
-/apps/web/src/features/public-menu/components/  @BINOME_GITHUB
-/apps/web/src/features/ar-viewer/               @BINOME_GITHUB
-/apps/web/src/features/qr-codes/                @BINOME_GITHUB
-/apps/web/src/features/analytics/components/    @BINOME_GITHUB
-/apps/web/src/app/[locale]/(marketing)/         @BINOME_GITHUB
+# --- Front-end / produit : @chraibimo ---
+/apps/web/src/components/                       @chraibimo
+/apps/web/src/i18n/                             @chraibimo
+/apps/web/src/messages/                         @chraibimo
+/apps/web/src/features/public-menu/components/  @chraibimo
+/apps/web/src/features/ar-viewer/               @chraibimo
+/apps/web/src/features/qr-codes/                @chraibimo
+/apps/web/src/features/analytics/components/    @chraibimo
+/apps/web/src/app/[locale]/(marketing)/         @chraibimo
 
 # --- Accès base de données : toujours relu par @ouahidmarwane (placé en dernier pour l'emporter) ---
 /apps/web/src/features/*/repository.ts          @ouahidmarwane
