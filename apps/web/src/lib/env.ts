@@ -45,6 +45,8 @@ const serverSchema = z.object({
   GPU_WEBHOOK_SECRET: optionalString,
 
   // E-mail et observabilité
+  EMAIL_DRIVER: z.enum(["console", "resend"]).default("console"),
+  EMAIL_FROM: z.string().min(1).default("AR Menu <no-reply@localhost>"),
   RESEND_API_KEY: optionalString,
   SENTRY_DSN: optionalString,
 });
