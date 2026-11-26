@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:hostinger": "node scripts/build-hostinger.mjs",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@ar/config": "workspace:*",
     "@tailwindcss/turbopack": "4.3.3",
+    "@tailwindcss/webpack": "4.3.3",
     "@types/node": "^24.19.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",

@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "pnpm --filter @ar/web dev",
     "build": "pnpm --filter @ar/web build",
+    "build:hostinger": "pnpm --filter @ar/web build:hostinger",
     "start": "pnpm --filter @ar/web start",
     "lint": "pnpm -r --if-present lint",
     "typecheck": "pnpm -r --if-present typecheck",

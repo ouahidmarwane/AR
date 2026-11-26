@@ -45,33 +45,38 @@ Babel Group sert à vérifier l'isolation : aucun compte Atlas ne doit voir ses 
 
 ## Scripts
 
-| Script             | Rôle                                                                 |
-| ------------------ | -------------------------------------------------------------------- |
-| `pnpm dev`         | Lance l'app web en développement                                     |
-| `pnpm build`       | Build de production de l'app web                                     |
-| `pnpm start`       | Démarre l'app buildée                                                |
-| `pnpm lint`        | ESLint (dont les règles d'accès à la base et d'import entre modules) |
-| `pnpm typecheck`   | Vérification TypeScript                                              |
-| `pnpm test`        | Tests Vitest, dont les tests d'isolation multi-tenant (base `_test`) |
-| `pnpm format`      | Formate tout le repo avec Prettier                                   |
-| `pnpm db:up`       | Démarre MySQL local (Docker)                                         |
-| `pnpm db:down`     | Arrête MySQL local (les données restent dans le volume)              |
-| `pnpm db:generate` | Génère une migration SQL depuis le schéma Drizzle                    |
-| `pnpm db:migrate`  | Applique les migrations en attente                                   |
-| `pnpm db:seed`     | Insère les données de démo                                           |
-| `pnpm db:studio`   | Ouvre Drizzle Studio pour explorer la base                           |
-| `pnpm db:reset`    | Supprime et recrée la base **locale**, puis migrate + seed           |
+| Script                 | Rôle                                                                 |
+| ---------------------- | -------------------------------------------------------------------- |
+| `pnpm dev`             | Lance l'app web en développement                                     |
+| `pnpm build`           | Build de production de l'app web (Turbopack)                         |
+| `pnpm build:hostinger` | Build de production pour Hostinger (webpack, parallélisme limité)    |
+| `pnpm start`           | Démarre l'app buildée                                                |
+| `pnpm lint`            | ESLint (dont les règles d'accès à la base et d'import entre modules) |
+| `pnpm typecheck`       | Vérification TypeScript                                              |
+| `pnpm test`            | Tests Vitest, dont les tests d'isolation multi-tenant (base `_test`) |
+| `pnpm format`          | Formate tout le repo avec Prettier                                   |
+| `pnpm db:up`           | Démarre MySQL local (Docker)                                         |
+| `pnpm db:down`         | Arrête MySQL local (les données restent dans le volume)              |
+| `pnpm db:generate`     | Génère une migration SQL depuis le schéma Drizzle                    |
+| `pnpm db:migrate`      | Applique les migrations en attente                                   |
+| `pnpm db:seed`         | Insère les données de démo                                           |
+| `pnpm db:studio`       | Ouvre Drizzle Studio pour explorer la base                           |
+| `pnpm db:reset`        | Supprime et recrée la base **locale**, puis migrate + seed           |
 
 ## Déploiement sur Hostinger (Node.js web app)
 
 L'app Next.js est dans `apps/web`, mais elle dépend du workspace pnpm (`packages/config`, lockfile à la racine) : le build doit donc partir de la **racine du repo**.
 
-| Réglage Hostinger     | Valeur                                           |
-| --------------------- | ------------------------------------------------ |
-| Dossier racine        | racine du repo (l'app elle-même est `apps/web`)  |
-| Version de Node.js    | **24** (dernière version proposée par Hostinger) |
-| Commande de build     | `pnpm install --frozen-lockfile && pnpm build`   |
-| Commande de démarrage | `pnpm start`                                     |
+| Réglage Hostinger     | Valeur                                                   |
+| --------------------- | -------------------------------------------------------- |
+| Preset / framework    | **Next.js**                                              |
+| Dossier racine        | racine du repo (l'app elle-même est `apps/web`)          |
+| Version de Node.js    | **24** (dernière version proposée par Hostinger)         |
+| Commande de build     | `pnpm install --frozen-lockfile && pnpm build:hostinger` |
+| Dossier de sortie     | `apps/web/.next`                                         |
+| Commande de démarrage | `pnpm start`                                             |
+
+**Build webpack sur Hostinger** : sur l'hébergement mutualisé, le build Turbopack échoue (`TurbopackInternalError … globals.css … node process exited before we could connect to it` : Turbopack ne peut pas y lancer ses processus de traitement CSS). `pnpm build:hostinger` (`apps/web/scripts/build-hostinger.mjs`) lance donc `next build --webpack` avec `NEXT_BUILD_LOW_RESOURCES=1`, qui fait limiter le parallélisme par `next.config.ts` (1 CPU, pas de worker webpack ni de compilations parallèles, 1 seul worker de génération statique). Tailwind passe alors par `@tailwindcss/webpack`. `pnpm build` (Turbopack) reste utilisé en local, et la CI lance les deux builds.
 
 **Node 24** : Hostinger ne propose pas de version au-delà de Node 24. Le repo vise donc Node 24 LTS partout : [`.nvmrc`](.nvmrc) (version exacte utilisée en local et par la CI), `engines.node` (`>=24`) dans `package.json`, et `@types/node` en 24 pour que TypeScript signale toute API Node plus récente. Ne pas utiliser d'API propre à Node 25 ou plus.
 
