@@ -1,3 +1,17 @@
-// API publique du module auth : seul point d'entrée autorisé depuis l'extérieur (@/features/auth).
-// TODO(auth) : réexporter ici les composants, actions, queries et types publics.
-export {};
+// API publique du module auth (contrat pour le front : README.md).
+export {
+  requestPasswordReset,
+  resetPassword,
+  sendVerificationEmail,
+  signIn,
+  signOut,
+  signUp,
+} from "./actions";
+export { getCurrentUser } from "./queries";
+export {
+  requestPasswordResetSchema,
+  resetPasswordSchema,
+  signInSchema,
+  signUpSchema,
+} from "./schemas";
+export type * from "./types";
