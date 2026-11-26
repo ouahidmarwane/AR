@@ -46,8 +46,12 @@ features/     # Code métier, un dossier par module
 components/   # UI générique réutilisable (ui/, layout/), sans logique métier
 lib/
   db/         # client (pool mysql2), schema/ (Drizzle), tenant.ts (isolation)
-  auth/       # server.ts (Better Auth), client.ts, permissions.ts (rôles)
+  auth/       # server.ts (Better Auth), client.ts, permissions.ts (rôles), constants.ts
   storage/    # StorageDriver, pilote local, pilote S3 (à venir)
+  email/      # EmailSender, pilote console (local), pilote Resend (à venir), templates
+  actions.ts  # ActionResult : format de retour commun des server actions
+  rate-limit.ts  # Limitation de fréquence des server actions sensibles
+  validation.ts  # Schémas Zod partagés (email, mot de passe, slug, rôle)
   env.ts      # Variables d'environnement validées par Zod
 i18n/         # Configuration des langues
 messages/     # Traductions fr / ar / en
