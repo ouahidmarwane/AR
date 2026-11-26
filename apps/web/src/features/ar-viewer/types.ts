@@ -1,2 +1,2 @@
-// TODO(ar-viewer) : types TypeScript du module (dérivés de @/types/database et des schémas).
+// TODO(ar-viewer) : types TypeScript du module (dérivés du schéma Drizzle et des schémas Zod).
 export {};

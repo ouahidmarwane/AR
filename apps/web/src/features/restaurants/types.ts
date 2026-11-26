@@ -1,2 +1,2 @@
-// TODO(restaurants) : types TypeScript du module (dérivés de @/types/database et des schémas).
-export {};
+export type { Restaurant } from "@/lib/db/schema";
+export type { RenameRestaurantInput } from "./schemas";

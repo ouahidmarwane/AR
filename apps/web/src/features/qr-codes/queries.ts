@@ -1,2 +1,3 @@
-// TODO(qr-codes) : lectures de données (Server Components) via le client Supabase serveur.
+// TODO(qr-codes) : lectures côté serveur (Server Components).
+// Modèle : requireTenant(orgSlug) -> repository.ts. Voir features/restaurants/queries.ts.
 export {};

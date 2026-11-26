@@ -6,11 +6,19 @@
 *                                               @ouahidmarwane
 /.github/                                       @ouahidmarwane
 /packages/                                      @ouahidmarwane
-/supabase/                                      @ouahidmarwane
+/docker-compose.yml                             @ouahidmarwane
+/docker/                                        @ouahidmarwane
 /services/                                      @ouahidmarwane
+/docs/security.md                               @ouahidmarwane
+/apps/web/drizzle/                              @ouahidmarwane
+/apps/web/drizzle.config.ts                     @ouahidmarwane
+/apps/web/scripts/                              @ouahidmarwane
+/apps/web/tests/                                @ouahidmarwane
 /apps/web/src/lib/                              @ouahidmarwane
+/apps/web/src/proxy.ts                          @ouahidmarwane
 /apps/web/src/features/auth/                    @ouahidmarwane
 /apps/web/src/features/organizations/           @ouahidmarwane
+/apps/web/src/features/restaurants/             @ouahidmarwane
 /apps/web/src/features/menu-import/             @ouahidmarwane
 /apps/web/src/features/billing/                 @ouahidmarwane
 /apps/web/src/features/admin/                   @ouahidmarwane
@@ -20,8 +28,11 @@
 /apps/web/src/components/                       @BINOME_GITHUB
 /apps/web/src/i18n/                             @BINOME_GITHUB
 /apps/web/src/messages/                         @BINOME_GITHUB
-/apps/web/src/features/public-menu/             @BINOME_GITHUB
+/apps/web/src/features/public-menu/components/  @BINOME_GITHUB
 /apps/web/src/features/ar-viewer/               @BINOME_GITHUB
 /apps/web/src/features/qr-codes/                @BINOME_GITHUB
-/apps/web/src/features/analytics/               @BINOME_GITHUB
+/apps/web/src/features/analytics/components/    @BINOME_GITHUB
 /apps/web/src/app/[locale]/(marketing)/         @BINOME_GITHUB
+
+# --- Accès base de données : toujours relu par @ouahidmarwane (placé en dernier pour l'emporter) ---
+/apps/web/src/features/*/repository.ts          @ouahidmarwane

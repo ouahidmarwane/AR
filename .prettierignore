@@ -3,8 +3,8 @@ node_modules/
 out/
 build/
 coverage/
+/storage/
 pnpm-lock.yaml
 next-env.d.ts
-apps/web/src/types/database.ts
-supabase/.temp/
-supabase/.branches/
+# Fichiers générés par drizzle-kit (migrations et snapshots)
+apps/web/drizzle/

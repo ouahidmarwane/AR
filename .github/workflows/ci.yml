@@ -14,13 +14,35 @@ permissions:
 
 jobs:
   check:
-    name: Lint, typecheck, build
+    name: Lint, typecheck, test, build
     runs-on: ubuntu-latest
+
+    services:
+      # Base dédiée aux tests d'isolation (vidée et migrée par tests/global-setup.ts).
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: ar_menu_test
+          MYSQL_USER: ar_user
+          MYSQL_PASSWORD: ar_password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=30
+
     env:
-      # Valeurs factices : le build ne contacte pas Supabase.
-      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
+      # Valeurs factices, sans aucun secret réel.
+      DATABASE_URL: mysql://ar_user:ar_password@127.0.0.1:3306/ar_menu
+      TEST_DATABASE_URL: mysql://ar_user:ar_password@127.0.0.1:3306/ar_menu_test
+      BETTER_AUTH_SECRET: ci-placeholder-secret-not-used-in-production
+      BETTER_AUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
       NEXT_TELEMETRY_DISABLED: 1
+
     steps:
       - uses: actions/checkout@v5
 
@@ -37,5 +59,7 @@ jobs:
       - run: pnpm lint
 
       - run: pnpm typecheck
+
+      - run: pnpm test
 
       - run: pnpm build

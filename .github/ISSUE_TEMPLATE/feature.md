@@ -19,7 +19,7 @@ labels: enhancement
 
 ## Module(s) concerné(s)
 
-<!-- ex. features/menu, features/public-menu, supabase/migrations -->
+<!-- ex. features/menu, features/public-menu, apps/web/src/lib/db/schema -->
 
 ## Phase de la roadmap
 

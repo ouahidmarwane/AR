@@ -1,0 +1,32 @@
+# Base MySQL 8 de développement local (une par développeur).
+# Lancée par `pnpm db:up`, qui lit les identifiants dans apps/web/.env.local (--env-file).
+# Les valeurs par défaut ci-dessous ne servent qu'en local.
+name: ar
+
+services:
+  mysql:
+    image: mysql:8
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-ar_menu}
+      MYSQL_USER: ${MYSQL_USER:-ar_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ar_password}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      # Scripts exécutés au premier démarrage (volume vide) : crée la base de test.
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", 'mysqladmin ping -h 127.0.0.1 -uroot -p"$$MYSQL_ROOT_PASSWORD" --silent']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+volumes:
+  mysql-data:

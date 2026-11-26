@@ -11,16 +11,19 @@
   "scripts": {
     "dev": "pnpm --filter @ar/web dev",
     "build": "pnpm --filter @ar/web build",
+    "start": "pnpm --filter @ar/web start",
     "lint": "pnpm -r --if-present lint",
     "typecheck": "pnpm -r --if-present typecheck",
-    "test": "echo \"No tests yet\"",
+    "test": "pnpm --filter @ar/web test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "db:start": "supabase start",
-    "db:stop": "supabase stop",
-    "db:reset": "supabase db reset",
-    "db:migration": "supabase migration new",
-    "db:types": "supabase gen types typescript --local > apps/web/src/types/database.ts",
+    "db:up": "docker compose --env-file apps/web/.env.local up -d --wait",
+    "db:down": "docker compose --env-file apps/web/.env.local down",
+    "db:generate": "pnpm --filter @ar/web db:generate",
+    "db:migrate": "pnpm --filter @ar/web db:migrate",
+    "db:seed": "pnpm --filter @ar/web db:seed",
+    "db:studio": "pnpm --filter @ar/web db:studio",
+    "db:reset": "pnpm --filter @ar/web db:reset && pnpm db:migrate && pnpm db:seed",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -30,7 +33,6 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
-    "prettier-plugin-tailwindcss": "^0.8.1",
-    "supabase": "^3.3.0"
+    "prettier-plugin-tailwindcss": "^0.8.1"
   }
 }

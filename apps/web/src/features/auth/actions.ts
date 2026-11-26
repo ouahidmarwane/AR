@@ -1,2 +1,4 @@
-// TODO(auth) : Server Actions (mutations) du module, avec "use server" et validation Zod.
+// TODO(auth) : Server Actions ("use server") du module.
+// Modèle : requireTenant(orgSlug, rôle) -> validation Zod (schemas.ts) -> repository.ts.
+// Voir features/restaurants/actions.ts et docs/security.md.
 export {};

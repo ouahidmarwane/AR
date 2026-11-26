@@ -1,2 +1,2 @@
-// TODO(public-menu) : types TypeScript du module (dérivés de @/types/database et des schémas).
+// TODO(public-menu) : types TypeScript du module (dérivés du schéma Drizzle et des schémas Zod).
 export {};

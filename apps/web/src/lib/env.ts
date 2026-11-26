@@ -2,31 +2,49 @@ import { z } from "zod";
 
 /**
  * Validation des variables d'environnement (voir .env.example).
- * Les variables sont validées à la première lecture (et non à l'import)
- * pour que `next build` fonctionne sans .env.local.
+ * Les variables sont validées à la première lecture (et non à l'import d'env.ts).
+ * Les variables MYSQL_* ne servent qu'à docker compose : l'app ne lit que DATABASE_URL.
  */
 
 /** Une valeur vide dans .env (`KEY=`) est traitée comme absente. */
-const optionalString = z.preprocess(
-  (value) => (value === "" ? undefined : value),
-  z.string().min(1).optional(),
-);
+const emptyToUndefined = (value: unknown) => (value === "" ? undefined : value);
+const optionalString = z.preprocess(emptyToUndefined, z.string().min(1).optional());
+const optionalUrl = z.preprocess(emptyToUndefined, z.url().optional());
 
 const publicSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: z.url(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  NEXT_PUBLIC_APP_URL: z.url(),
 });
 
 const serverSchema = z.object({
-  SUPABASE_SERVICE_ROLE_KEY: optionalString,
+  // Base de données
+  DATABASE_URL: z
+    .string()
+    .regex(/^mysql:\/\//, "doit être une URL mysql://user:password@host:port/base"),
+  DB_CONNECTION_LIMIT: z.coerce.number().int().min(1).max(50).default(5),
+
+  // Authentification
+  BETTER_AUTH_SECRET: z.string().min(32, "au moins 32 caractères (openssl rand -base64 32)"),
+  BETTER_AUTH_URL: z.url(),
+
+  // Stockage des fichiers
+  STORAGE_DRIVER: z.enum(["local", "r2"]).default("local"),
+  STORAGE_LOCAL_PATH: z.string().min(1).default("../../storage"),
+
+  // IA
   ANTHROPIC_API_KEY: optionalString,
   CLAUDE_MENU_MODEL: z.string().min(1).default("claude-sonnet-5-5"),
+
+  // Paiement
   PAYMENT_PROVIDER: z.enum(["manual"]).default("manual"),
   PAYMENT_SECRET_KEY: optionalString,
   PAYMENT_WEBHOOK_SECRET: optionalString,
-  GPU_ENDPOINT_URL: z.preprocess((value) => (value === "" ? undefined : value), z.url().optional()),
+
+  // Worker GPU (phase 5)
+  GPU_ENDPOINT_URL: optionalUrl,
   GPU_API_KEY: optionalString,
   GPU_WEBHOOK_SECRET: optionalString,
+
+  // E-mail et observabilité
   RESEND_API_KEY: optionalString,
   SENTRY_DSN: optionalString,
 });
@@ -48,8 +66,7 @@ export function getPublicEnv(): PublicEnv {
   // Accès explicites : Next.js n'injecte dans le bundle client que les
   // références littérales `process.env.NEXT_PUBLIC_*`.
   const parsed = publicSchema.safeParse({
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   });
   if (!parsed.success) {
     throw new Error(

@@ -6,5 +6,5 @@ packages:
 allowBuilds:
   sharp: false
   unrs-resolver: false
-  # Télécharge le binaire de la Supabase CLI (scripts db:*).
-  supabase: true
+  # Binaire natif utilisé par tsx et drizzle-kit.
+  esbuild: true
