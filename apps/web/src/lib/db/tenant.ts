@@ -1,4 +1,4 @@
-import { and, eq, type SQL } from "drizzle-orm";
+import { and, asc, eq, type SQL } from "drizzle-orm";
 import type { MySqlColumn } from "drizzle-orm/mysql-core";
 import { headers } from "next/headers";
 
@@ -41,7 +41,7 @@ function isRole(value: string): value is Role {
  * Better Auth stocke parfois plusieurs rôles séparés par des virgules ("manager,staff").
  * On retient le plus élevé ; un rôle inconnu ne donne aucun droit (fail closed).
  */
-function highestRole(rawRole: string): Role | null {
+export function memberRole(rawRole: string): Role | null {
   const known = rawRole
     .split(",")
     .map((role) => role.trim())
@@ -71,7 +71,7 @@ export async function resolveTenant(
   // Même erreur que l'organisation existe ou non : on ne révèle pas son existence.
   if (!membership) throw new ForbiddenError();
 
-  const role = highestRole(membership.role);
+  const role = memberRole(membership.role);
   if (!role || ROLE_RANK[role] < ROLE_RANK[minRole]) {
     throw new ForbiddenError("Rôle insuffisant");
   }
@@ -79,11 +79,57 @@ export async function resolveTenant(
   return Object.freeze({ organizationId: membership.organizationId, userId, role });
 }
 
-/** Session Better Auth de la requête courante (Server Component, Server Action, Route Handler). */
-async function getSessionUserId(): Promise<string> {
+export type SessionUser = Readonly<{
+  userId: string;
+  email: string;
+  name: string;
+  emailVerified: boolean;
+}>;
+
+/**
+ * Utilisateur connecté (session Better Auth de la requête courante), sans contexte
+ * d'organisation. Pour tout ce qui concerne une organisation, utiliser requireTenant().
+ * @throws UnauthenticatedError (401) sans session valide.
+ */
+export async function requireSession(): Promise<SessionUser> {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) throw new UnauthenticatedError();
-  return session.user.id;
+  const { id, email, name, emailVerified } = session.user;
+  return Object.freeze({ userId: id, email, name, emailVerified });
+}
+
+async function getSessionUserId(): Promise<string> {
+  return (await requireSession()).userId;
+}
+
+export type Membership = Readonly<{
+  organizationId: string;
+  slug: string;
+  name: string;
+  role: Role;
+}>;
+
+/**
+ * Organisations dont un utilisateur DÉJÀ authentifié est membre (rôles hors liste ignorés).
+ * Le userId doit venir de requireSession(), jamais du client.
+ */
+export async function listUserMemberships(userId: string): Promise<Membership[]> {
+  const rows = await db
+    .select({
+      organizationId: organization.id,
+      slug: organization.slug,
+      name: organization.name,
+      role: member.role,
+    })
+    .from(member)
+    .innerJoin(organization, eq(member.organizationId, organization.id))
+    .where(eq(member.userId, userId))
+    .orderBy(asc(organization.name));
+
+  return rows.flatMap((row) => {
+    const role = memberRole(row.role);
+    return role ? [{ ...row, role }] : [];
+  });
 }
 
 /**

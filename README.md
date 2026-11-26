@@ -26,9 +26,22 @@ pnpm install                            # installe aussi les hooks Git (Husky)
 cp .env.example apps/web/.env.local     # puis renseigner BETTER_AUTH_SECRET (openssl rand -base64 32)
 pnpm db:up                              # MySQL 8 dans Docker (bases ar_menu et ar_menu_test)
 pnpm db:migrate                         # applique les migrations de apps/web/drizzle
-pnpm db:seed                            # 2 organisations de démo (identifiants affichés)
+pnpm db:seed                            # comptes de démo (voir ci-dessous)
 pnpm dev                                # http://localhost:3000
 ```
+
+### Comptes de démo (base locale)
+
+Créés par `pnpm db:seed`, mot de passe **`password1234`** pour tous (emails déjà vérifiés). Connexion sur `/fr/login`.
+
+| Email                | Organisation (`/fr/app/...`) | Rôle    |
+| -------------------- | ---------------------------- | ------- |
+| `owner@atlas.test`   | Atlas Food (`atlas`)         | owner   |
+| `manager@atlas.test` | Atlas Food (`atlas`)         | manager |
+| `staff@atlas.test`   | Atlas Food (`atlas`)         | staff   |
+| `owner@babel.test`   | Babel Group (`babel`)        | owner   |
+
+Babel Group sert à vérifier l'isolation : aucun compte Atlas ne doit voir ses données. En local, les emails (vérification, réinitialisation, invitation) ne sont pas envoyés : avec `EMAIL_DRIVER=console`, leurs liens s'affichent dans le terminal de `pnpm dev`.
 
 ## Scripts
 

@@ -25,6 +25,38 @@ Les seuls rôles d'organisation valides sont **`owner`, `manager`, `staff`** (`O
 - **Fail closed** : si une ligne `member` contient malgré tout un rôle hors liste (écriture directe en base, ancienne donnée), `requireTenant()` refuse l'accès (403) : un rôle inconnu ne donne aucun droit.
 - Couvert par `apps/web/tests/organization-roles.test.ts` (créateur owner, rejets à l'invitation, à l'ajout et au changement de rôle, rôle hors liste en base).
 
+### Invitations et gestion des membres
+
+Les règles sont appliquées dans `features/organizations/actions.ts` (après `requireTenant()` et lecture de la cible via le repository) **et** par Better Auth (défense en profondeur). Tests : `apps/web/tests/auth-organizations.test.ts`.
+
+| Action                                                              | owner | manager | staff |
+| ------------------------------------------------------------------- | ----- | ------- | ----- |
+| Inviter un `owner`                                                  | oui   | non     | non   |
+| Inviter un `manager` ou un `staff`                                  | oui   | oui     | non   |
+| Changer le rôle d'un `manager` / `staff` (vers `manager` / `staff`) | oui   | oui     | non   |
+| Nommer un `owner`, modifier ou retirer un `owner`                   | oui   | non     | non   |
+| Retirer un `manager` / `staff`                                      | oui   | oui     | non   |
+
+- **Dernier owner** : il ne peut être **ni retiré ni rétrogradé** (`LAST_OWNER`) ; il faut d'abord nommer un autre owner.
+- **Invitation** : rôle obligatoire, lien `/[locale]/invitation/[id]` **valable 48 h** ; une invitation expirée, annulée ou déjà traitée est refusée. Réinviter la même adresse remplace l'invitation en attente.
+- **Acceptation** : il faut être connecté avec **la même adresse email que l'invitation, et cette adresse doit être vérifiée** (`requireEmailVerificationOnInvitation`). Sans cette vérification, n'importe qui pourrait s'inscrire avec l'adresse d'un invité (sans la posséder) et rejoindre l'organisation à sa place.
+- Un id de membre ou d'invitation d'une autre organisation est **introuvable** (`NOT_FOUND`) ; agir sur une organisation dont on n'est pas membre renvoie `FORBIDDEN`.
+
+### Authentification
+
+- **Mot de passe** : 10 caractères minimum (128 maximum), haché par Better Auth (scrypt).
+- **Messages génériques** : une connexion échouée renvoie toujours `INVALID_CREDENTIALS`, que l'email existe ou non ; une demande de réinitialisation répond toujours la même chose. _Limite connue_ : l'inscription renvoie `EMAIL_UNAVAILABLE` pour une adresse déjà utilisée (choix d'ergonomie), atténué par le rate limit.
+- **Vérification d'email** : envoyée à l'inscription ; la connexion est possible avant vérification (passer `requireEmailVerification: true` dans `src/lib/auth/server.ts` pour l'exiger partout), mais l'acceptation d'une invitation l'exige.
+- **Réinitialisation** : lien valable 1 h, à usage unique ; un mot de passe réinitialisé **révoque toutes les sessions**.
+- **Déconnexion** : la session est supprimée en base (le cookie seul ne suffit plus).
+- **Rate limiting** :
+  - requêtes HTTP vers `/api/auth/*` : rate limit intégré de Better Auth (connexion, inscription, réinitialisation, renvoi de vérification) ;
+  - server actions : `src/lib/rate-limit.ts` (connexion par IP et par email, inscription, réinitialisation, vérification, invitations), car les appels `auth.api.*` ne passent pas par le rate limit HTTP ;
+  - stockage **en mémoire** : valable pour une instance Node unique ; à passer sur un stockage partagé si l'app tourne sur plusieurs instances. L'IP est lue dans `X-Forwarded-For` / `X-Real-IP`, fiables uniquement derrière le proxy de l'hébergeur.
+- **Cookies** : `Secure` en production (`useSecureCookies`), `HttpOnly` et `SameSite=Lax` (défauts de Better Auth).
+- **Origines de confiance** : `trustedOrigins` = `BETTER_AUTH_URL` et `NEXT_PUBLIC_APP_URL` ; toute autre origine est refusée (403) sur `/api/auth/*`, et les URL de redirection doivent appartenir à ces origines.
+- **Emails** : pilote `console` en local (les liens, qui contiennent des jetons, s'affichent dans les logs : **jamais en production**) ; pilote Resend à venir.
+
 ### 2. Toutes les requêtes passent par un repository
 
 - Seuls `src/features/*/repository.ts` (et `src/lib/db/**`, `src/lib/auth/server.ts`) peuvent importer `drizzle-orm`, `mysql2` ou `@/lib/db/client`. **ESLint bloque** tout autre import.
@@ -69,6 +101,7 @@ Les seuls rôles d'organisation valides sont **`owner`, `manager`, `staff`** (`O
 - [ ] Chaque action/query appelle `requireTenant()` (avec le bon rôle minimum) **avant** tout accès au repository.
 - [ ] Les entrées client sont validées par Zod.
 - [ ] Aucun rôle d'organisation autre que `owner | manager | staff` n'est introduit, et les hooks de rôle de `src/lib/auth/server.ts` ne sont ni retirés ni contournés.
+- [ ] Les nouvelles actions sensibles (authentification, envoi d'email, invitation) sont limitées en fréquence, et les messages d'erreur ne révèlent pas l'existence d'un compte.
 - [ ] Les jointures vers une autre table métier filtrent aussi sur l'organisation, ou le résultat passe par `assertSameTenant()`.
 - [ ] Un test d'isolation A/B couvre chaque nouvelle fonction de repository, et il passe en CI.
 - [ ] Les erreurs ne révèlent pas l'existence de ressources d'une autre organisation (404 plutôt que 403 sur un id).

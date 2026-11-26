@@ -33,6 +33,9 @@ export default defineConfig({
   },
   test: {
     environment: "node",
+    // Better Auth est transformé par Vitest (au lieu d'être chargé tel quel depuis node_modules)
+    // pour que les tests puissent simuler next/headers, y compris dans son plugin nextCookies.
+    server: { deps: { inline: [/better-auth/] } },
     include: ["tests/**/*.test.ts"],
     globalSetup: ["tests/global-setup.ts"],
     // Tous les fichiers partagent la même base : exécution séquentielle.

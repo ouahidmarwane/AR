@@ -1,4 +1,4 @@
-// TODO(auth) : accès base de données du module (SEUL fichier du module autorisé à importer
-// drizzle-orm et @/lib/db/client). Chaque fonction prend un TenantContext en 1er paramètre
-// et applique tenantWhere(). Voir features/restaurants/repository.ts et docs/security.md.
+// Pas d'accès direct à la base dans ce module : les tables d'authentification (user,
+// session, account, verification) sont gérées par Better Auth (auth.api.*, voir actions.ts).
+// Les lectures liées aux organisations sont dans features/organizations/repository.ts.
 export {};
