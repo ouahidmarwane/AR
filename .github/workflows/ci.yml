@@ -68,6 +68,9 @@ jobs:
 
       - run: pnpm build
 
-      # Build de production Hostinger (webpack, parallélisme limité) : détecte tôt une régression.
-      - name: Build Hostinger (webpack)
-        run: pnpm build:hostinger
+      # Build de production Hostinger, lancé exactement comme sur Hostinger (`pnpm run build`
+      # avec BUILD_TARGET=hostinger) : webpack, parallélisme limité. Détecte tôt une régression.
+      - name: Build Hostinger (BUILD_TARGET=hostinger)
+        run: pnpm build
+        env:
+          BUILD_TARGET: hostinger
